@@ -1,0 +1,85 @@
+-- Simple Aimbot Script with Futuristic GUI
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local camera = game.Workspace.CurrentCamera
+local aimbotActive = false  -- Whether the aimbot is on or off
+local targetRadius = 50  -- Radius to find players (in studs)
+
+-- Creating a simple futuristic GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 200, 0, 50)
+toggleButton.Position = UDim2.new(0.5, -100, 0.8, 0)
+toggleButton.Text = "Activate Aimbot"
+toggleButton.TextSize = 20
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green for activation
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Parent = screenGui
+
+-- Sound effect for button click
+local buttonSound = Instance.new("Sound")
+buttonSound.SoundId = "rbxassetid://1421021178"  -- Futuristic click sound
+buttonSound.Parent = toggleButton
+
+-- Function to find the closest player
+local function findClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = targetRadius  -- Max distance to search for players
+    
+    -- Iterate over all players in the game
+    for _, potentialTarget in pairs(game.Players:GetPlayers()) do
+        if potentialTarget ~= player and potentialTarget.Character and potentialTarget.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (potentialTarget.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+            if distance < shortestDistance then
+                closestPlayer = potentialTarget
+                shortestDistance = distance
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+-- Function to aim at the closest player's head
+local function aimAtHead(target)
+    if target and target.Character then
+        local head = target.Character:FindFirstChild("Head")
+        if head then
+            -- Calculate the direction to aim at the head
+            local direction = (head.Position - camera.CFrame.p).unit
+            camera.CFrame = CFrame.new(camera.CFrame.p, head.Position)  -- Aim camera at the player's head
+        end
+    end
+end
+
+-- Function to toggle aimbot on/off
+local function toggleAimbot()
+    aimbotActive = not aimbotActive
+    
+    -- Update button and toggle state
+    if aimbotActive then
+        toggleButton.Text = "Deactivate Aimbot"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Red for deactivated
+    else
+        toggleButton.Text = "Activate Aimbot"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green for activated
+    end
+end
+
+-- Button click listener to toggle aimbot
+toggleButton.MouseButton1Click:Connect(function()
+    buttonSound:Play()  -- Play sound on click
+    toggleAimbot()  -- Toggle aimbot status
+end)
+
+-- Main loop to track the closest player and aim
+game:GetService("RunService").Heartbeat:Connect(function()
+    if aimbotActive then
+        local closestPlayer = findClosestPlayer()  -- Get the closest player
+        if closestPlayer then
+            aimAtHead(closestPlayer)  -- Aim at the player's head
+        end
+    end
+end)
