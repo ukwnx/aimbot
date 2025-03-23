@@ -3,7 +3,7 @@ local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 local camera = game.Workspace.CurrentCamera
 local aimbotActive = false  -- Whether the aimbot is on or off
-local targetRadius = 50  -- Radius to find players (in studs)
+local targetRadius = 170  -- Radius to find players (in studs)
 
 -- Creating a simple futuristic GUI
 local screenGui = Instance.new("ScreenGui")
